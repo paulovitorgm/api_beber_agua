@@ -12,7 +12,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
 class ConsumoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Consumo
-        fields = '__all__'
+        exclude = ['id',]
 
     def create(self, validated_data):
         usuario = validated_data['usuario']
@@ -21,6 +21,8 @@ class ConsumoSerializer(serializers.ModelSerializer):
         validated_data['meta_diaria'] = meta_diaria
         validated_data['data'] = date.today()
         return super().create(validated_data)
+    
+    
 
 
 class ResultadoDoDiaSerializer(serializers.ModelSerializer):
@@ -30,11 +32,14 @@ class ResultadoDoDiaSerializer(serializers.ModelSerializer):
         exclude = ['id']
         
     
-class HistoricoPorDiaSerializer(serializers.ModelSerializer):
+
+class HistoricoPorDiaSerializer(serializers.ModelSerializer):  
     usuario = serializers.ReadOnlyField(source='usuario.nome')
-    
+    bateu_a_meta = serializers.SerializerMethodField()
     class Meta:
         model = Consumo
-        exclude = ['id']
-        
-    
+        exclude = ['id', 'consumo']
+
+    def get_bateu_a_meta(self, obj):
+        return obj.meta_consumida >= obj.meta_diaria
+

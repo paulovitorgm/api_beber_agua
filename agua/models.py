@@ -15,7 +15,8 @@ class Consumo(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     meta_diaria = models.IntegerField(editable=False)
     meta_consumida = models.IntegerField(editable=False, default=0)
-    consumo = models.IntegerField(blank=False, null=False, choices=copo)
+    percentual_consumido = models.DecimalField(max_digits=5,decimal_places=2, default=0, editable=False)
+    consumo = models.IntegerField(blank=False, null=False, choices=copo, default=0)
     data = models.DateField(blank=False, null=False, editable=False)
     
     def __str__(self):
