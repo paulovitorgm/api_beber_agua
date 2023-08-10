@@ -41,5 +41,5 @@ class HistoricoPorDiaSerializer(serializers.ModelSerializer):
         exclude = ['id', 'consumo']
 
     def get_bateu_a_meta(self, obj):
-        return obj.meta_consumida >= obj.meta_diaria
-
+        m1= obj.meta_consumida >= obj.meta_diaria
+        return m1
