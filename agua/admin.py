@@ -14,6 +14,5 @@ class AdminConsumo(admin.ModelAdmin):
 
 
 
-
 admin.site.register(Usuario, AdminUsuario)
 admin.site.register(Consumo, AdminConsumo)

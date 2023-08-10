@@ -1,7 +1,6 @@
 from django.db import models
 
 
-
 class Usuario(models.Model):
     nome = models.CharField(blank=False, null=False, max_length=30)
     peso = models.IntegerField(blank=False, null=False)

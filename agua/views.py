@@ -28,28 +28,30 @@ class ConsumoViewSet(viewsets.ModelViewSet):
         return queryset
         
 
-
-
     
 class HistoricoPorDia(generics.ListAPIView):
     serializer_class = HistoricoPorDiaSerializer
 
     def get_queryset(self):
         usuario_id = self.kwargs['pk']
+        queryset = Consumo.objects.filter(usuario_id=usuario_id, data=data)
+        query_usuario = Usuario.objects.filter(pk=usuario_id)
+        meta = query_usuario.get().peso * 35
+
         try:
             ano, mes, dia = self.kwargs['ano'], self.kwargs['mes'], self.kwargs['dia']
             data = f'{ano}-{mes}-{dia}'
         except:
             data = date.today()
-        queryset = Consumo.objects.filter(usuario_id=usuario_id, data=data)
-        data = queryset.first().data
-        meta = queryset.first().meta_diaria 
-        usuario_id = queryset.first().usuario.pk
-        consumo_total = queryset.aggregate(consumo_total=Sum('consumo'))['consumo_total']
+        try:
+            consumo_total = queryset.aggregate(consumo_total=Sum('consumo'))['consumo_total']
+            consumo_total = 0 if consumo_total is None else consumo_total
+        except:
+            consumo_total = 0
+
         percentual_consumido = consumo_total / meta * 100
-        meta_consumida = consumo_total
         objeto_consumo = Consumo(consumo=consumo_total, usuario_id=usuario_id, data=data, 
-                                 meta_diaria=meta, percentual_consumido= percentual_consumido, meta_consumida=meta_consumida)
+                                 meta_diaria=meta, percentual_consumido= percentual_consumido, meta_consumida=consumo_total)
         return [objeto_consumo]
     
     
@@ -61,8 +63,8 @@ class HistoricoPorDiasPassados(generics.ListAPIView):
         usuario_id = self.kwargs['pk']
         datas = [date.today() - timedelta(days=i) for i in range(3)]
         queryset = Consumo.objects.filter(usuario_id=usuario_id, data__in=datas)
-
         objetos_consumo = []
+
         for data in datas:
             consumo_total = queryset.filter(data=data).aggregate(consumo_total=Sum('consumo'))['consumo_total']
             meta = queryset.first().meta_diaria
@@ -70,7 +72,6 @@ class HistoricoPorDiasPassados(generics.ListAPIView):
                 percentual_consumido = consumo_total / meta * 100
             except:
                 percentual_consumido = 0
-
             objeto_consumo = Consumo(consumo=consumo_total, usuario_id=usuario_id, data=data, meta_diaria=meta, percentual_consumido=percentual_consumido, meta_consumida=consumo_total)
             objetos_consumo.append(objeto_consumo)
 
